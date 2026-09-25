@@ -3,365 +3,343 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Human Scanner</title>
 
 <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 
 <style>
-* {
-    box-sizing: border-box;
+
+*{
+    box-sizing:border-box;
 }
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    background:
-        radial-gradient(circle at center, #071b22 0%, #020608 55%, #000 100%);
-    color: #00ffcc;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#020607;
+    color:#00ffd0;
 }
 
-.app {
-    width: min(900px, 94vw);
-    text-align: center;
+body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
 }
 
-.title {
-    font-size: 32px;
-    font-weight: 700;
-    letter-spacing: 5px;
-    margin-bottom: 6px;
-    text-shadow: 0 0 15px #00ffcc;
+.app{
+    width:100%;
+    max-width:900px;
+    padding:20px;
+    text-align:center;
 }
 
-.subtitle {
-    color: #6caaa0;
-    font-size: 13px;
-    letter-spacing: 2px;
-    margin-bottom: 22px;
+.title{
+    font-size:30px;
+    font-weight:bold;
+    letter-spacing:6px;
+    text-shadow:0 0 15px #00ffd0;
+    margin-bottom:5px;
 }
 
-/* SCANNER */
-
-.scanner {
-    position: relative;
-    width: min(650px, 94vw);
-    height: 470px;
-    margin: auto;
-    background: #020809;
-    overflow: hidden;
-    border: 1px solid #00a98f;
-    box-shadow:
-        0 0 20px rgba(0,255,204,.15),
-        inset 0 0 50px rgba(0,255,204,.05);
+.subtitle{
+    color:#568b82;
+    font-size:11px;
+    letter-spacing:3px;
+    margin-bottom:18px;
 }
 
 /* CAMERA */
 
-#video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.scanner{
+    position:relative;
+    width:100%;
+    max-width:700px;
+    height:500px;
+    margin:auto;
+    overflow:hidden;
 
-    /* mirror camera */
-    transform: scaleX(-1);
+    background:#000;
 
-    opacity: .86;
-}
-
-/* DARK MASK */
-
-.mask {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background:
-        linear-gradient(
-            to bottom,
-            rgba(0,0,0,.70) 0%,
-            rgba(0,0,0,.12) 27%,
-            rgba(0,0,0,.12) 73%,
-            rgba(0,0,0,.70) 100%
-        );
-}
-
-/* FACE SCAN AREA */
-
-.scanArea {
-    position: absolute;
-    width: 270px;
-    height: 320px;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-
-    border: 2px solid rgba(0,255,204,.7);
+    border:1px solid #00a88b;
 
     box-shadow:
-        0 0 20px rgba(0,255,204,.12),
-        inset 0 0 20px rgba(0,255,204,.05);
-
-    pointer-events: none;
+        0 0 30px rgba(0,255,208,.12),
+        inset 0 0 50px rgba(0,255,208,.08);
 }
 
-/* CORNERS */
-
-.corner {
-    position: absolute;
-    width: 28px;
-    height: 28px;
-    border-color: #00ffcc;
+video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transform:scaleX(-1);
 }
 
-.tl {
-    top: -2px;
-    left: -2px;
-    border-top: 4px solid;
-    border-left: 4px solid;
+/* DARK EDGES */
+
+.overlay{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+
+    background:
+    linear-gradient(
+        to bottom,
+        rgba(0,0,0,.72),
+        transparent 22%,
+        transparent 78%,
+        rgba(0,0,0,.72)
+    );
 }
 
-.tr {
-    top: -2px;
-    right: -2px;
-    border-top: 4px solid;
-    border-right: 4px solid;
+/* FACE TARGET */
+
+.target{
+    position:absolute;
+
+    width:280px;
+    height:350px;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-50%);
+
+    border:1px solid rgba(0,255,208,.45);
+
+    pointer-events:none;
 }
 
-.bl {
-    bottom: -2px;
-    left: -2px;
-    border-bottom: 4px solid;
-    border-left: 4px solid;
+.corner{
+    position:absolute;
+    width:35px;
+    height:35px;
+
+    border-color:#00ffd0;
 }
 
-.br {
-    bottom: -2px;
-    right: -2px;
-    border-bottom: 4px solid;
-    border-right: 4px solid;
+.tl{
+    top:-2px;
+    left:-2px;
+    border-top:4px solid;
+    border-left:4px solid;
+}
+
+.tr{
+    top:-2px;
+    right:-2px;
+    border-top:4px solid;
+    border-right:4px solid;
+}
+
+.bl{
+    bottom:-2px;
+    left:-2px;
+    border-bottom:4px solid;
+    border-left:4px solid;
+}
+
+.br{
+    bottom:-2px;
+    right:-2px;
+    border-bottom:4px solid;
+    border-right:4px solid;
 }
 
 /* LASER */
 
-.laser {
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background: #00ffcc;
-    box-shadow: 0 0 12px #00ffcc;
-    top: 0;
-    animation: scan 2.2s linear infinite;
+.laser{
+    position:absolute;
+
+    left:0;
+    width:100%;
+    height:2px;
+
+    background:#00ffd0;
+
+    box-shadow:
+        0 0 10px #00ffd0,
+        0 0 25px #00ffd0;
+
+    animation:laser 2.5s linear infinite;
 }
 
-@keyframes scan {
-    0% {
-        top: 0;
+@keyframes laser{
+
+    0%{
+        top:0;
     }
 
-    50% {
-        top: 100%;
+    50%{
+        top:100%;
     }
 
-    100% {
-        top: 0;
+    100%{
+        top:0;
     }
+
 }
 
 /* STATUS */
 
-.status {
-    position: absolute;
-    bottom: 14px;
-    left: 50%;
-    transform: translateX(-50%);
+.status{
+    position:absolute;
 
-    background: rgba(0,0,0,.78);
-    border: 1px solid #00a98f;
+    bottom:15px;
+    left:50%;
 
-    padding: 9px 18px;
+    transform:translateX(-50%);
 
-    font-size: 12px;
-    letter-spacing: 2px;
+    padding:10px 18px;
 
-    white-space: nowrap;
+    background:rgba(0,0,0,.82);
+
+    border:1px solid #008d78;
+
+    color:#00ffd0;
+
+    font-size:12px;
+
+    letter-spacing:2px;
+
+    white-space:nowrap;
 }
 
-/* RESULT PANEL */
+/* RESULTS */
 
-.panel {
-    width: min(650px, 94vw);
-    margin: 16px auto 0;
+.results{
+    max-width:700px;
 
-    background: rgba(2,10,12,.9);
-    border: 1px solid #075e52;
+    margin:15px auto 0;
 
-    padding: 18px;
+    padding:18px;
 
-    text-align: left;
+    background:#030b0c;
+
+    border:1px solid #075a4d;
 }
 
-.detected {
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
+.detected{
+    font-size:20px;
+    font-weight:bold;
 
-    margin-bottom: 18px;
+    margin-bottom:15px;
 
-    color: #00ffcc;
-    text-shadow: 0 0 10px rgba(0,255,204,.5);
+    color:#00ffd0;
+
+    text-shadow:0 0 10px rgba(0,255,208,.5);
 }
 
-.rows {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+.grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap:10px;
 }
 
-.row {
-    background: rgba(0,255,204,.035);
-    border: 1px solid #073f38;
+.card{
+    padding:12px;
 
-    padding: 12px;
+    text-align:left;
+
+    background:rgba(0,255,208,.025);
+
+    border:1px solid #083d36;
 }
 
-.label {
-    display: block;
+.label{
+    display:block;
 
-    color: #5d8f87;
-    font-size: 10px;
+    color:#54847c;
 
-    letter-spacing: 1.5px;
-    margin-bottom: 5px;
+    font-size:10px;
+
+    letter-spacing:1.5px;
+
+    margin-bottom:5px;
 }
 
-.value {
-    color: #d5fff8;
-    font-size: 16px;
-    font-weight: bold;
+.value{
+    font-size:16px;
+
+    font-weight:bold;
+
+    color:#e0fffa;
 }
 
-.confidence {
-    color: #00ffcc;
+.green{
+    color:#00ffd0;
 }
 
-.warning {
-    color: #ffca65;
+.note{
+    margin-top:14px;
+
+    font-size:10px;
+
+    color:#50706b;
+
+    line-height:1.5;
 }
 
-.footer {
-    margin-top: 14px;
+/* LOADING */
 
-    font-size: 10px;
-    color: #55716c;
+.loader{
+    position:fixed;
 
-    line-height: 1.5;
+    right:15px;
+    top:15px;
+
+    z-index:20;
+
+    padding:10px 14px;
+
+    background:rgba(0,0,0,.85);
+
+    border:1px solid #075a4d;
+
+    font-size:11px;
+
+    color:#00ffd0;
 }
 
-.loading {
-    position: fixed;
-    inset: 0;
-
-    background: #010506;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    z-index: 100;
-
-    text-align: center;
+.hidden{
+    display:none;
 }
 
-.loadingBox {
-    width: min(400px, 85vw);
-}
+@media(max-width:600px){
 
-.loadingTitle {
-    font-size: 22px;
-    letter-spacing: 4px;
-    margin-bottom: 15px;
-}
-
-.progress {
-    width: 100%;
-    height: 3px;
-
-    background: #07332d;
-    overflow: hidden;
-}
-
-.progressBar {
-    width: 30%;
-    height: 100%;
-
-    background: #00ffcc;
-
-    animation: progress 1.2s infinite;
-}
-
-@keyframes progress {
-    0% {
-        transform: translateX(-100%);
+    .app{
+        padding:10px;
     }
 
-    100% {
-        transform: translateX(400%);
+    .title{
+        font-size:22px;
     }
+
+    .scanner{
+        height:420px;
+    }
+
+    .target{
+        width:220px;
+        height:290px;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
 }
 
-.hidden {
-    display: none !important;
-}
-
-@media(max-width:600px) {
-
-    .scanner {
-        height: 400px;
-    }
-
-    .scanArea {
-        width: 220px;
-        height: 280px;
-    }
-
-    .rows {
-        grid-template-columns: 1fr;
-    }
-
-    .title {
-        font-size: 24px;
-    }
-}
 </style>
 </head>
 
 <body>
-
-<div class="loading" id="loading">
-
-    <div class="loadingBox">
-
-        <div class="loadingTitle">
-            INITIALIZING SCANNER
-        </div>
-
-        <div id="loadingText">
-            Loading AI models...
-        </div>
-
-        <br>
-
-        <div class="progress">
-            <div class="progressBar"></div>
-        </div>
-
-    </div>
-
-</div>
-
 
 <div class="app">
 
@@ -377,15 +355,16 @@ body {
     <div class="scanner">
 
         <video
-            id="video"
+            id="camera"
             autoplay
             muted
             playsinline>
         </video>
 
-        <div class="mask"></div>
+        <div class="overlay"></div>
 
-        <div class="scanArea">
+
+        <div class="target">
 
             <div class="corner tl"></div>
             <div class="corner tr"></div>
@@ -396,37 +375,50 @@ body {
 
         </div>
 
-        <div class="status" id="status">
-            SEARCHING FOR FACE...
+
+        <div
+            class="status"
+            id="status">
+
+            STARTING CAMERA...
+
         </div>
 
     </div>
 
 
-    <div class="panel">
+    <div class="results">
 
-        <div class="detected" id="detected">
-            NO FACE DETECTED
+        <div
+            class="detected"
+            id="detected">
+
+            SEARCHING FOR HUMAN
+
         </div>
 
-        <div class="rows">
 
-            <div class="row">
+        <div class="grid">
+
+
+            <div class="card">
 
                 <span class="label">
                     FACE CONFIDENCE
                 </span>
 
                 <span
-                    class="value confidence"
+                    class="value green"
                     id="confidence">
+
                     --
+
                 </span>
 
             </div>
 
 
-            <div class="row">
+            <div class="card">
 
                 <span class="label">
                     ESTIMATED AGE
@@ -435,13 +427,15 @@ body {
                 <span
                     class="value"
                     id="age">
+
                     --
+
                 </span>
 
             </div>
 
 
-            <div class="row">
+            <div class="card">
 
                 <span class="label">
                     MODEL-ESTIMATED GENDER
@@ -450,22 +444,60 @@ body {
                 <span
                     class="value"
                     id="gender">
+
                     --
+
                 </span>
 
             </div>
 
 
-            <div class="row">
+            <div class="card">
 
                 <span class="label">
-                    EXPRESSION
+                    GENDER CONFIDENCE
+                </span>
+
+                <span
+                    class="value green"
+                    id="genderConfidence">
+
+                    --
+
+                </span>
+
+            </div>
+
+
+            <div class="card">
+
+                <span class="label">
+                    FACES DETECTED
                 </span>
 
                 <span
                     class="value"
-                    id="expression">
-                    --
+                    id="faces">
+
+                    0
+
+                </span>
+
+            </div>
+
+
+            <div class="card">
+
+                <span class="label">
+                    SCANNER
+                </span>
+
+                <span
+                    class="value green"
+                    id="scannerState">
+
+                    ONLINE
+
                 </span>
 
             </div>
@@ -473,10 +505,11 @@ body {
         </div>
 
 
-        <div class="footer">
-            Age and gender are model estimates and can be inaccurate.
-            Face confidence represents the model's confidence that a face
-            was detected; it is not a measure of identity.
+        <div class="note">
+
+            Age and gender are AI estimates and may be inaccurate.
+            Face confidence indicates detection confidence, not identity.
+
         </div>
 
     </div>
@@ -484,313 +517,428 @@ body {
 </div>
 
 
+<div
+    class="loader"
+    id="loader">
+
+    Loading AI...
+
+</div>
+
+
 <script>
 
-const video = document.getElementById("video");
+/* =========================================
+   ELEMENTS
+========================================= */
 
-const loading = document.getElementById("loading");
-const loadingText = document.getElementById("loadingText");
+const video =
+    document.getElementById("camera");
 
-const statusText = document.getElementById("status");
+const status =
+    document.getElementById("status");
 
-const detectedText = document.getElementById("detected");
+const detected =
+    document.getElementById("detected");
 
-const confidenceText = document.getElementById("confidence");
-const ageText = document.getElementById("age");
-const genderText = document.getElementById("gender");
-const expressionText = document.getElementById("expression");
+const confidence =
+    document.getElementById("confidence");
+
+const age =
+    document.getElementById("age");
+
+const gender =
+    document.getElementById("gender");
+
+const genderConfidence =
+    document.getElementById("genderConfidence");
+
+const faces =
+    document.getElementById("faces");
+
+const loader =
+    document.getElementById("loader");
 
 
-const MODEL_URL =
-"https://justadudewhohacks.github.io/face-api.js/models";
+/* =========================================
+   CAMERA
+========================================= */
 
+async function startCamera(){
+
+    try{
+
+        if(
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ){
+
+            throw new Error(
+                "Camera API is not supported."
+            );
+
+        }
+
+
+        const stream =
+            await navigator.mediaDevices.getUserMedia({
+
+                video:{
+                    facingMode:"user",
+
+                    width:{
+                        ideal:1280
+                    },
+
+                    height:{
+                        ideal:720
+                    }
+                },
+
+                audio:false
+
+            });
+
+
+        video.srcObject = stream;
+
+
+        await new Promise(
+            resolve => {
+
+                video.onloadedmetadata =
+                    () => {
+
+                        video.play();
+
+                        resolve();
+
+                    };
+
+            }
+        );
+
+
+        status.textContent =
+            "CAMERA READY — LOOK AT SCANNER";
+
+
+        return true;
+
+
+    }catch(error){
+
+        console.error(error);
+
+        status.textContent =
+            "CAMERA ACCESS DENIED";
+
+        detected.textContent =
+            "ALLOW CAMERA ACCESS";
+
+        loader.textContent =
+            "Camera permission required";
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================
+   LOAD AI
+========================================= */
+
+async function loadAI(){
+
+    try{
+
+        loader.textContent =
+            "Loading face detector...";
+
+
+        await faceapi.nets.tinyFaceDetector.loadFromUri(
+            "https://justadudewhohacks.github.io/face-api.js/models"
+        );
+
+
+        loader.textContent =
+            "Loading age model...";
+
+
+        await faceapi.nets.ageGenderNet.loadFromUri(
+            "https://justadudewhohacks.github.io/face-api.js/models"
+        );
+
+
+        loader.textContent =
+            "AI READY";
+
+
+        setTimeout(
+            () => loader.classList.add("hidden"),
+            1000
+        );
+
+
+        startScanning();
+
+
+    }catch(error){
+
+        console.error(
+            "AI ERROR:",
+            error
+        );
+
+
+        loader.textContent =
+            "AI MODEL ERROR — CAMERA STILL WORKS";
+
+
+        status.textContent =
+            "AI MODEL FAILED";
+
+
+        scannerFallback();
+
+    }
+
+}
+
+
+/* =========================================
+   SCANNING
+========================================= */
 
 let scanning = false;
 
 
-/* -------------------------------
-   LOAD MODELS
--------------------------------- */
+function startScanning(){
 
-async function loadModels() {
+    if(scanning)
+        return;
 
-    try {
+    scanning = true;
 
-        loadingText.textContent =
-            "Loading face detector...";
-
-        await faceapi.nets.tinyFaceDetector.loadFromUri(
-            MODEL_URL
-        );
+    status.textContent =
+        "SCANNING FOR FACE...";
 
 
-        loadingText.textContent =
-            "Loading facial analysis...";
-
-
-        await faceapi.nets.faceLandmark68TinyNet.loadFromUri(
-            MODEL_URL
-        );
-
-
-        loadingText.textContent =
-            "Loading age & gender model...";
-
-
-        await faceapi.nets.ageGenderNet.loadFromUri(
-            MODEL_URL
-        );
-
-
-        loadingText.textContent =
-            "Starting camera...";
-
-
-        await startCamera();
-
-
-        loading.classList.add("hidden");
-
-
-        scanning = true;
-
-        scanLoop();
-
-
-    } catch(error) {
-
-        console.error(error);
-
-        loadingText.innerHTML =
-            "Unable to initialize scanner.<br><br>" +
-            "<small>" +
-            error.message +
-            "</small>";
-
-    }
+    scan();
 
 }
 
 
-/* -------------------------------
-   CAMERA
--------------------------------- */
+async function scan(){
 
-async function startCamera() {
+    if(
+        !scanning ||
+        video.readyState < 2
+    ){
 
-    if (!navigator.mediaDevices ||
-        !navigator.mediaDevices.getUserMedia) {
-
-        throw new Error(
-            "Camera is not supported by this browser."
+        setTimeout(
+            scan,
+            300
         );
-
-    }
-
-
-    const stream =
-        await navigator.mediaDevices.getUserMedia({
-
-            video: {
-
-                facingMode: "user",
-
-                width: {
-                    ideal: 1280
-                },
-
-                height: {
-                    ideal: 720
-                }
-
-            },
-
-            audio: false
-
-        });
-
-
-    video.srcObject = stream;
-
-
-    await new Promise(resolve => {
-
-        video.onloadedmetadata = () => {
-
-            video.play();
-
-            resolve();
-
-        };
-
-    });
-
-}
-
-
-/* -------------------------------
-   SCANNER LOOP
--------------------------------- */
-
-async function scanLoop() {
-
-    if (!scanning) return;
-
-
-    if (video.readyState < 2) {
-
-        requestAnimationFrame(scanLoop);
 
         return;
 
     }
 
 
-    try {
+    try{
 
-        const detections =
+        const results =
+            await faceapi.detectAllFaces(
 
-            await faceapi
-                .detectAllFaces(
-                    video,
-                    new faceapi.TinyFaceDetectorOptions({
+                video,
 
-                        inputSize: 320,
+                new faceapi.TinyFaceDetectorOptions({
 
-                        scoreThreshold: 0.5
+                    inputSize:320,
 
-                    })
-                )
-                .withFaceLandmarks(true)
-                .withAgeAndGender();
+                    scoreThreshold:0.5
+
+                })
+
+            )
+            .withAgeAndGender();
 
 
-        if (detections.length === 0) {
+        faces.textContent =
+            results.length;
 
-            showNoFace();
 
-        } else {
+        if(results.length === 0){
 
-            showFace(detections[0]);
+            noFace();
+
+        }else{
+
+            showFace(
+                results[0]
+            );
 
         }
 
 
-    } catch(error) {
+    }catch(error){
 
-        console.error(
-            "Scanning error:",
-            error
-        );
+        console.error(error);
 
     }
 
 
     setTimeout(
-        () => requestAnimationFrame(scanLoop),
-        150
+        scan,
+        200
     );
 
 }
 
 
-/* -------------------------------
+/* =========================================
    NO FACE
--------------------------------- */
+========================================= */
 
-function showNoFace() {
+function noFace(){
 
-    statusText.textContent =
-        "SEARCHING FOR FACE...";
+    status.textContent =
+        "SCANNING FOR FACE...";
 
-
-    detectedText.textContent =
+    detected.textContent =
         "NO FACE DETECTED";
 
-
-    confidenceText.textContent =
+    confidence.textContent =
         "--";
 
-    ageText.textContent =
+    age.textContent =
         "--";
 
-    genderText.textContent =
+    gender.textContent =
         "--";
 
-    expressionText.textContent =
+    genderConfidence.textContent =
         "--";
 
 }
 
 
-/* -------------------------------
+/* =========================================
    FACE FOUND
--------------------------------- */
+========================================= */
 
-function showFace(face) {
+function showFace(result){
 
-    const confidence =
-        face.detection.score;
-
-
-    const percentage =
-        (confidence * 100).toFixed(1);
+    const faceScore =
+        result.detection.score;
 
 
-    const age =
-        Math.round(face.age);
+    const facePercent =
+        (faceScore * 100)
+        .toFixed(1);
 
 
-    const gender =
-        face.gender;
+    const estimatedAge =
+        Math.round(result.age);
 
 
-    statusText.textContent =
+    const estimatedGender =
+        result.gender;
+
+
+    const genderScore =
+        (
+            result.genderProbability * 100
+        ).toFixed(1);
+
+
+    status.textContent =
         "FACE DETECTED";
 
 
-    detectedText.textContent =
+    detected.textContent =
         "✓ HUMAN FACE DETECTED";
 
 
-    confidenceText.textContent =
-        percentage + "%";
+    confidence.textContent =
+        facePercent + "%";
 
 
-    ageText.textContent =
-        age + " years (estimated)";
+    age.textContent =
+        estimatedAge +
+        " years (estimated)";
 
 
-    genderText.textContent =
-        gender;
+    gender.textContent =
+        estimatedGender;
 
 
-    /*
-      The ageGender model provides a gender
-      prediction probability internally.
-    */
-
-    const genderProbability =
-        face.genderProbability;
-
-
-    /*
-      Expression estimation isn't loaded
-      in this lightweight version.
-    */
-
-    expressionText.textContent =
-        "Analysis available";
-
+    genderConfidence.textContent =
+        genderScore + "%";
 
 }
 
 
-/* -------------------------------
-   START
--------------------------------- */
+/* =========================================
+   FALLBACK
+========================================= */
 
-loadModels();
+function scannerFallback(){
+
+    /*
+       Camera remains active even if the AI
+       model cannot load.
+    */
+
+    status.textContent =
+        "CAMERA ONLINE — AI UNAVAILABLE";
+
+    detected.textContent =
+        "CAMERA WORKING";
+
+    confidence.textContent =
+        "--";
+
+    age.textContent =
+        "--";
+
+    gender.textContent =
+        "--";
+
+    genderConfidence.textContent =
+        "--";
+
+}
+
+
+/* =========================================
+   START EVERYTHING
+========================================= */
+
+(async function(){
+
+    const cameraOK =
+        await startCamera();
+
+
+    if(!cameraOK){
+
+        return;
+
+    }
+
+
+    /*
+       Camera is already visible.
+       AI loads AFTER camera starts.
+    */
+
+    await loadAI();
+
+})();
 
 </script>
 
